@@ -8,7 +8,7 @@ export class OrderController {
     constructor(private orderService: OrderService) {}
 
     @Post()
-    create(@Body() orderDto: TaxiDTO[]) {
+    create(@Body() orderDto: { data: TaxiDTO[], isFrench: boolean }) {
         return this.orderService.create(orderDto)
     }
 

@@ -12,6 +12,7 @@ import * as moment from "moment";
 import { TaxiDTO } from "src/dto/taxi.dto";
 import { User } from "src/shcemas/user.schema";
 import { emailTemplateEn } from "./emailTemplateEn";
+import { emailTemplateFr } from "./emailTemplateFr";
 import { userDTO } from "src/dto/user.dto";
 
 @Injectable()
@@ -26,13 +27,14 @@ export class OrderService {
         private readonly mailerService: MailerService
     ) {}
 
-    async create(data: TaxiDTO[]) {
+    async create(data: { data: TaxiDTO[], isFrench: boolean }){
         const users = [];
         const orders = [];
         const responses = [];
+        
 
         //Group orders by email address
-            for await (const item of data) {
+            for await (const item of data.data) {
                 const order = await new this.orderModel({...item, status: "open", orderType:item.type, type: 'one-way' ,});
             //Create all database records, filter with zero quantity and create_________________________________________________________
                 item.baggage.filter((item) => item.quantity).map((item) =>new this.bagModel({...item,orderId: order._id,}).save());
@@ -137,7 +139,9 @@ export class OrderService {
                 
             //Send email ________________________________________________________________________________________________________________
                 const dateTimeR = item.isReturnTrip ? (item.timeR + ' '+ item.dateR) : null
-                const emailText = emailTemplateEn(item.name, (item.time + ' '+ item.date), user._id, dateTimeR)
+                const  emailText = data.isFrench 
+                    ? emailTemplateFr(item.name, (item.time + ' '+ item.date), user._id, dateTimeR) 
+                    : emailTemplateEn(item.name, (item.time + ' '+ item.date), user._id, dateTimeR)
                 const mailResponses = await this.mailerService.sendMail({
                     to: item.email,
                     from: "AndriiIlkiv@gmail.com",
