@@ -11,7 +11,7 @@ import ical from "ical-generator";
 import * as moment from "moment";
 import { TaxiDTO } from "src/dto/taxi.dto";
 import { User } from "src/shcemas/user.schema";
-import { emailTemplate } from "./emailTemplate";
+import { emailTemplateEn } from "./emailTemplateEn";
 import { userDTO } from "src/dto/user.dto";
 
 @Injectable()
@@ -136,7 +136,8 @@ export class OrderService {
                 }
                 
             //Send email ________________________________________________________________________________________________________________
-                const emailText = emailTemplate(item.name, (item.time + ' '+ item.date), user._id)
+                const dateTimeR = item.isReturnTrip ? (item.timeR + ' '+ item.dateR) : null
+                const emailText = emailTemplateEn(item.name, (item.time + ' '+ item.date), user._id, dateTimeR)
                 const mailResponses = await this.mailerService.sendMail({
                     to: item.email,
                     from: "AndriiIlkiv@gmail.com",
