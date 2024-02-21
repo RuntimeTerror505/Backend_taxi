@@ -27,23 +27,27 @@ export class OrderService {
         private readonly mailerService: MailerService
     ) {}
 
-    async create(data: { data: TaxiDTO[], isFrench: boolean }){
+    async create(data: { list: TaxiDTO[], isFrench: boolean }){
         const users = [];
         const orders = [];
         const responses = [];
         
-
+        console.log(data, 'data')
         //Group orders by email address
-            for await (const item of data.data) {
+            for await (const item of data.list) {
+
                 const order = await new this.orderModel({...item, status: "open", orderType:item.type, type: 'one-way' ,});
-            //Create all database records, filter with zero quantity and create_________________________________________________________
+
+                //Create all database records, filter with zero quantity and create_________________________________________________________
                 item.baggage.filter((item) => item.quantity).map((item) =>new this.bagModel({...item,orderId: order._id,}).save());
                 item.carSeats.filter((item) => item.quantity).map((item) =>new this.seatsModel({...item,orderId: order._id, }).save());
                 item.sport.filter((item) => item.quantity).map((item) =>new this.sportModel({...item,orderId: order._id,}).save());
                 item.pets.filter((item) => item.quantity).map((item) =>new this.petsModel({...item,orderId: order._id,}).save());
+
                 await order.save();
 
                 console.log(order, "created order");
+                orders.push(order)
 
             //create or update user________________________________________________________________________________________________________
                 const candidate:userDTO = await this.userModel.findOne({ email: item.email });
@@ -64,7 +68,6 @@ export class OrderService {
                 }
 
                 users.push(user, 'user');
-
 
                 if(item.isReturnTrip) {
                     const returnOrder = await new this.orderModel({
@@ -91,7 +94,9 @@ export class OrderService {
                     item.sport.filter((item) => item.quantity).map((item) =>new this.sportModel({...item,orderId: returnOrder._id,}).save());
                     item.pets.filter((item) => item.quantity).map((item) =>new this.petsModel({...item,orderId: returnOrder._id,}).save());
                     await returnOrder.save();
-        
+
+                    orders.push(returnOrder);
+
                     console.log(returnOrder, "created return order");
 
                     await this.userModel.findOneAndUpdate({ _id: user._id }, { orders: [...user.orders, returnOrder._id] });
@@ -99,8 +104,9 @@ export class OrderService {
                     console.log(user, "return user updated ");
                 }
             
+                //create new iCalendar event _______________________________________________________________________________________________
                 const calendarEvents = []
-            //create new iCalendar event _______________________________________________________________________________________________
+                
                 const calendar = ical({ name: "one way order" });
                 const parsedDate = moment(item.date + " " + item.time,"MM/DD/YYYY HH:mm");
 
