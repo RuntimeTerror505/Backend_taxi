@@ -14,16 +14,19 @@ import { ConfigModule } from '@nestjs/config';
     }),
 
     OrderModule,
-    MongooseModule.forRoot('mongodb+srv://admin:admin@taxi.azwgfbe.mongodb.net/orders'), 
+    MongooseModule.forRoot(process.env.MONGO_URL), 
     MailerModule.forRoot({
       transport: {
         host: "smtp.gmail.com",
         port: 587,
         secure: false,
         auth: {
-          user: 'vladyslav25cm@gmail.com',
-          pass: 'xsyt owxs zruy kvrm',
+          user: 'Ceo@csure.taxi',
+          pass: 'rnuf ocve cipb cyxt',
         },
+        tls: {
+            rejectUnauthorized:false,
+        }
       },
       defaults: {
         from: '"No Reply" <no-reply@example.com>',

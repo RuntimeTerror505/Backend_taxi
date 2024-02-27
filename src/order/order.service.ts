@@ -32,7 +32,7 @@ export class OrderService {
         const orders = [];
         const responses = [];
         
-        console.log(data, 'data')
+        console.log(data, 'orders list')
         //Group orders by email address
             for await (const item of data.list) {
 
@@ -47,6 +47,7 @@ export class OrderService {
                 await order.save();
 
                 console.log(order, "created order");
+
                 orders.push(order)
 
             //create or update user________________________________________________________________________________________________________
@@ -62,7 +63,7 @@ export class OrderService {
                     }).save();
                     console.log(user, "new user created ");
                 } else {
-                    await this.userModel.findOneAndUpdate({ _id: candidate._id }, { orders: [...candidate.orders, order._id] });
+                    await this.userModel.findOneAndUpdate({ _id: candidate._id }, { orders: [...candidate.orders, order._id.toString()] });
                     user = await this.userModel.findOne({ _id: candidate._id });
                     console.log(user, "user updated ");
                 }
@@ -106,7 +107,6 @@ export class OrderService {
             
                 //create new iCalendar event _______________________________________________________________________________________________
                 const calendarEvents = []
-                
                 const calendar = ical({ name: "one way order" });
                 const parsedDate = moment(item.date + " " + item.time,"MM/DD/YYYY HH:mm");
 
@@ -114,7 +114,7 @@ export class OrderService {
                     start: new Date(parsedDate.toLocaleString()),
                     end: new Date(parsedDate.add(1, "hour").toLocaleString()),
                     summary: `You order new taxi`,
-                    description: `You ordered beautiful taxi}`,
+                    description: `You ordered beautiful taxi`,
                     location: "you soul",
                 });
             
@@ -123,6 +123,7 @@ export class OrderService {
                         content: calendar.toString(),
                         method: "REQUEST",
                 })
+                
             
                 if(item.isReturnTrip) {
                     const calendar = ical({ name: "return order" });
@@ -132,7 +133,7 @@ export class OrderService {
                         start: new Date(parsedDate.toLocaleString()),
                         end: new Date(parsedDate.add(1, "hour").toLocaleString()),
                         summary: `You order new taxi`,
-                        description: `You ordered beautiful taxi}`,
+                        description: `You ordered beautiful taxi`,
                         location: "you soul",
                     });
                 
@@ -148,9 +149,10 @@ export class OrderService {
                 const  emailText = data.isFrench 
                     ? emailTemplateFr(item.name, (item.time + ' '+ item.date), user._id, dateTimeR) 
                     : emailTemplateEn(item.name, (item.time + ' '+ item.date), user._id, dateTimeR)
+
                 const mailResponses = await this.mailerService.sendMail({
                     to: item.email,
-                    from: "AndriiIlkiv@gmail.com",
+                    from: "bonjour.taxi@gmail.com",
                     subject: "test emails",
                     html: emailText,
                     attachments: calendarEvents,
