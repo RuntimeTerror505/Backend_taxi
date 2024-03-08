@@ -93,8 +93,22 @@ export class Order  {
     departure: string;
     @Prop()
     departure2: string;
-
     @Prop()
+
+    
+    passengersTotal: number;
+    @Prop()
+    baggageTotal: number;
+    @Prop()
+    seatsTotal: number;
+    @Prop()
+    strollersTotal: number;
+    @Prop()
+    petsTotal: number;
+    @Prop()
+    sportTotal: number;
+    @Prop()
+
     adults: number;
     @Prop()
     kids: number[];

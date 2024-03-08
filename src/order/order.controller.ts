@@ -30,6 +30,5 @@ export class OrderController {
     @Patch(':id')
     updateOrder(@Param('id') id: string, @Body() orderDto: TaxiDTO){
         return this.orderService.updateOrder(id, orderDto)
-    }
-
+    } 
 }

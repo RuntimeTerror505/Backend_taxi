@@ -53,12 +53,20 @@ export class orderDto {
     readonly isReturnTrip: boolean;
 
     readonly carType: string;
+
+    readonly passengersTotal: number;
+    readonly baggageTotal: number;
+    readonly seatsTotal: number;
+    readonly strollersTotal: number;
+    readonly petsTotal: number;
+    readonly sportTotal: number;
+
     readonly adults: number;
     readonly kids: number[];
     readonly babies: number;
 
     readonly baggage?: [{
-        title: string,
+        type: number,
         quantity: number,
     }]
     readonly sport?: [{
