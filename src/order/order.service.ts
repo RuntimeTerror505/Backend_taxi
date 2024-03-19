@@ -14,6 +14,7 @@ import { User } from "src/shcemas/user.schema";
 import { emailTemplateEn } from "./emailTemplateEn";
 import { emailTemplateFr } from "./emailTemplateFr";
 import { userDTO } from "src/dto/user.dto";
+import { getOrderQuery } from "src/queries/OrderQuery";
 
 @Injectable()
 export class OrderService {
@@ -27,14 +28,14 @@ export class OrderService {
         private readonly mailerService: MailerService
     ) {}
 
-    async create(data: { list: TaxiDTO[], isFrench: boolean }){
+    async create(data: { orders: TaxiDTO[], isFrench: boolean }){
         const users = [];
         const orders = [];
         const responses = [];
         
         console.log(data, 'orders list')
         //Group orders by email address
-            for await (const item of data.list) {
+            for await (const item of data.orders) {
 
                 const order = await new this.orderModel({...item, status: "open", orderType:item.type, type: 'one-way' ,});
 
@@ -176,11 +177,13 @@ export class OrderService {
     }
 
     async getOrder(id: string) {
-        return this.orderModel.findOne({'_id':id}).exec();
+
+        const order =  await this.orderModel.aggregate(getOrderQuery(id)).exec();
+    
+        return order 
     }
 
     async updateStatus(id: string, status) {
-        
         return this.orderModel.findOneAndUpdate({'_id':id},{status: status}).exec();
     }
     async updateOrder(id: string, order) {
